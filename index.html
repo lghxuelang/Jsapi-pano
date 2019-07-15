@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>全景示例</title>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 450px;
+        width: 100%;
+      }
+      #panorama {
+        height: 500px;
+        width: 100%;
+      }
+      #view {
+        position: absolute;
+        top: 50px;
+        left: 200px;
+      }
+    </style>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.9/esri/css/main.css" />
+    <script src="./lib/jquery-1-11-1.js"></script>
+    <script src="./lib/trans.js"></script>
+    <script src="https://js.arcgis.com/4.9/"></script>
+
+    <script
+      type="text/javascript"
+      src="http://api.map.baidu.com/api?v=2.0&ak=664b3211151ada139ca3378c77360c0e"
+    ></script>
+
+    <script>
+      window.panoObj = {mode:false};
+      require([
+        "esri/layers/WebTileLayer",
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/Basemap"
+      ], function(WebTileLayer, Map, MapView, Basemap) {
+        //   天地图矢量图层
+        var vecTiledLayer = new WebTileLayer({
+          urlTemplate:
+            "http://t0.tianditu.com/vec_w/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&FORMAT=tiles&TILEMATRIXSET=w&STYLE=default&LAYER=vec&TILEMATRIX={level}&TILEROW={row}&TILECOL={col}&tk=2b4dbd63705acef3a76f69a71aff5a0d"
+        });
+        //  天地图注记图层
+        var cvaTiledLayer = new WebTileLayer({
+          urlTemplate:
+            "http://t0.tianditu.com/cva_w/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&FORMAT=tiles&TILEMATRIXSET=w&STYLE=default&LAYER=cva&TILEMATRIX={level}&TILEROW={row}&TILECOL={col}&tk=2b4dbd63705acef3a76f69a71aff5a0d"
+        });
+        var customBasemap = new Basemap({
+          baseLayers: [vecTiledLayer, cvaTiledLayer],
+          title: "天地图",
+          id: "tianditu"
+        });
+
+        var map = new Map({
+          basemap: customBasemap
+        });
+  
+        var view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 13,
+          center: [116.38, 39.9]
+        });
+        window.panoObj['view'] = view;
+      });
+      function buttonClick(){
+        if(panoObj.mode){
+          panoDeactive();
+        }else{
+          panoActive();
+        }
+      }
+      //启用全景
+      function panoActive() {
+        $(document.body).append('<div id="panorama"></div>');
+        panoObj['mode'] = true;
+        $('#button').text('关闭全景');
+        $(window.panoObj.view.container).css(
+          "cursor",
+          "url(" + "./images/panoMarker.png" + ") 12 35, auto"
+        );
+        require(["esri/geometry/support/webMercatorUtils"], function(
+          webMercatorUtils
+        ) {
+          panoObj['handle'] =  panoObj.view.on("click", function(event) {
+            var wgs84 = webMercatorUtils.webMercatorToGeographic(
+              event.mapPoint
+            );
+
+            var url = `http://api.map.baidu.com/geoconv/v1/?coords=${wgs84.x},${
+              wgs84.y
+            }&from=1&to=5&ak=2436c002d1b49cde10213acef9a616e3`;
+            // 这里使用百度提供的坐标转换接口,自己写的查询不到全景
+            $.ajax({
+              type: "GET",
+              url: url,
+              dataType: "jsonp",
+              success: function(res) {
+                var point = res.result[0];
+                var panorama = new BMap.Panorama("panorama"); //1
+                panorama.setPosition(new BMap.Point(point.x, point.y)); //2       120.320032, 31.589666
+                panorama.setPov({ heading: -40, pitch: 6 }); //3
+              }
+            });
+          });
+        });
+      }
+      //关闭全景
+      function panoDeactive(){
+        $('#panorama').remove()
+        $('#button').text('全景');
+        $(window.panoObj.view.container).css(
+          "cursor",
+          "default"
+        );
+        panoObj['handle']&&panoObj['handle'].remove();
+        panoObj['mode'] = false;
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div id="view">
+      <button id = 'button' onclick="buttonClick()">全景</button>
+    </div>
+  </body>
+</html>
