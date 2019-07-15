@@ -35,7 +35,7 @@
 
     <script
       type="text/javascript"
-      src="http://api.map.baidu.com/api?v=2.0&ak=664b3211151ada139ca3378c77360c0e"
+      src="http://api.map.baidu.com/api?v=2.0&ak=bdAK"
     ></script>
 
     <script>
@@ -49,12 +49,12 @@
         //   天地图矢量图层
         var vecTiledLayer = new WebTileLayer({
           urlTemplate:
-            "http://t0.tianditu.com/vec_w/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&FORMAT=tiles&TILEMATRIXSET=w&STYLE=default&LAYER=vec&TILEMATRIX={level}&TILEROW={row}&TILECOL={col}&tk=2b4dbd63705acef3a76f69a71aff5a0d"
+            "http://t0.tianditu.com/vec_w/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&FORMAT=tiles&TILEMATRIXSET=w&STYLE=default&LAYER=vec&TILEMATRIX={level}&TILEROW={row}&TILECOL={col}&tk=tdtAk"
         });
         //  天地图注记图层
         var cvaTiledLayer = new WebTileLayer({
           urlTemplate:
-            "http://t0.tianditu.com/cva_w/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&FORMAT=tiles&TILEMATRIXSET=w&STYLE=default&LAYER=cva&TILEMATRIX={level}&TILEROW={row}&TILECOL={col}&tk=2b4dbd63705acef3a76f69a71aff5a0d"
+            "http://t0.tianditu.com/cva_w/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetTile&FORMAT=tiles&TILEMATRIXSET=w&STYLE=default&LAYER=cva&TILEMATRIX={level}&TILEROW={row}&TILECOL={col}&tk=tdtAk"
         });
         var customBasemap = new Basemap({
           baseLayers: [vecTiledLayer, cvaTiledLayer],
